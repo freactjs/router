@@ -1,13 +1,7 @@
 import { FC, FreactNode, createContext, useCallback, useEffect, useState } from "@freact/core";
-
-function splitPath(path: string): string[] {
-  const frags = (path[0] === '/' ? path.slice(1) : path).split('/');
-  if (frags.at(-1) === '') frags.pop();
-  return frags.map(x => decodeURI(x));
-}
+import { parsePath } from "../utils/parsePath";
 
 export const RouterState = createContext<{
-  basename: string;
   path: string[];
   push: (path: string, replace?: boolean) => void;
 }>();
@@ -16,10 +10,10 @@ export const BrowserRouter: FC<{
   children?: FreactNode;
   basename?: string;
 }> = ({ children, basename = '/' }) => {
-  const [path, setPath] = useState(() => splitPath(location.pathname));
+  const [path, setPath] = useState(() => parsePath(location.pathname));
 
   const push = useCallback((dest: string, replace?: boolean) => {
-    let newPath = splitPath(dest);
+    let newPath = parsePath(dest);
     newPath = dest[0] === '/' ? newPath : [...path, ...newPath];
 
     setPath(newPath);
@@ -30,7 +24,7 @@ export const BrowserRouter: FC<{
 
   useEffect(() => {
     const onPopState = () => {
-      setPath(splitPath(location.pathname));
+      setPath(parsePath(location.pathname));
     };
 
     window.addEventListener('popstate', onPopState);
@@ -38,9 +32,10 @@ export const BrowserRouter: FC<{
   }, []);
 
   return (
-    <RouterState.Provider value={{
-      basename, path, push
-    }}>
+    <RouterState.Provider value={{ path, push }}>
+      {/* <Routes>
+        <Route path={basename} element={children} />
+      </Routes> */}
       {children}
     </RouterState.Provider>
   );

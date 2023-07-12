@@ -7,16 +7,16 @@ export const App: FC = () => {
 
   return (
     <div>
-      <button onClick={() => navigate('test')}>test</button>
+      <button onClick={() => navigate('/dude')}>goto</button>
       <Routes>
-        <>
-          <Route path="/" element={<div>index</div>} />
-          <Route path="/test" element={<div>test page</div>} />
-        </>
-        <Route path="/yo/:slug" element={<div>slug dude</div>}>
+        <Route path="/" element={<div>index</div>} />
+        <Route path="/test?/stuff?/test/test?/idk?" element={<div>test page</div>} />
+        <Route path='/stuff/test?' element={<div>other</div>} />
+        {/* <Route path="/yo/:slug" element={<div>slug dude</div>}>
           <Route path='/' element={<div>slug index boy</div>} />
           <Route path='nest' element={<div>nest mate</div>} />
-        </Route>
+          <Route path='*' element={<div>fallback</div>} />
+        </Route> */}
       </Routes>
     </div>
   );
