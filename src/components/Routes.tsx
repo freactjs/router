@@ -1,11 +1,16 @@
+import { normalizePath } from "@/utils/normalizePath";
 import { raise } from "@/utils/raise";
 import { FC, FreactNode, createContext, useContext } from "@freact/core";
 import { RouterState } from "./BrowserRouter";
 import { Route } from "./Route";
-import { normalizePath } from "@/utils/normalizePath";
+import { compilePath } from "@/utils/compilePath";
 
 interface RouteNode {
   path: string;
+  matcher: RegExp;
+  specificity: number;
+  params: [string, number][];
+  wild: number | null;
   el: FreactNode;
   parent?: RouteNode;
 }
@@ -35,24 +40,29 @@ function* getRoutes(children: FreactNode[], parent?: RouteNode): Generator<Route
       newPath = `${oldPath}${newPath.length > 0 ? '/' : ''}${newPath}`;
     }
 
-    const res = {
+    const res: RouteNode = {
       path: newPath,
       el: child.props.element,
       parent
-    };
+    } as any;
 
     let hasIndex = false;
     if (child.props.children) {
       for (const sub of getRoutes([child.props.children], res)) {
-        if (sub.path.length === res.path.length)
+        if (sub.path.length === newPath.length)
           hasIndex = !newPath.endsWith('*') || sub.path.endsWith('*');
 
         yield sub;
       }
     }
 
-    if (!hasIndex)
-      yield res;
+    const [matcher, specificity, params, wild] = compilePath(newPath);
+    res.specificity = specificity;
+    res.matcher = matcher;
+    res.params = params;
+    res.wild = wild;
+
+    if (!hasIndex) yield res;
   }
 }
 
