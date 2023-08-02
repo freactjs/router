@@ -1,11 +1,11 @@
-import { parsePath } from "@/utils/parsePath";
 import { raise } from "@/utils/raise";
 import { FC, FreactNode, createContext, useContext } from "@freact/core";
 import { RouterState } from "./BrowserRouter";
 import { Route } from "./Route";
+import { normalizePath } from "@/utils/normalizePath";
 
 interface RouteNode {
-  path: string[];
+  path: string;
   el: FreactNode;
   parent?: RouteNode;
 }
@@ -26,21 +26,26 @@ function* getRoutes(children: FreactNode[], parent?: RouteNode): Generator<Route
       raise(`<${elName}> cannot be a child of <Routes>. Only <Route> components are permitted.`);
     }
 
-    let path = [...(parent?.path ?? [])];
-    if (path.length > 0 && path.at(-1) === '*') path.pop();
-    path.push(...parsePath(child.props.path));
+    let newPath = normalizePath(child.props.path);
+    if (parent) {
+      const oldPath = parent.path.endsWith('*')
+        ? parent.path.slice(0, -2)
+        : parent.path;
 
-    const res: RouteNode = {
-      path,
+      newPath = `${oldPath}${newPath.length > 0 ? '/' : ''}${newPath}`;
+    }
+
+    const res = {
+      path: newPath,
       el: child.props.element,
-      parent: parent
+      parent
     };
 
     let hasIndex = false;
     if (child.props.children) {
       for (const sub of getRoutes([child.props.children], res)) {
         if (sub.path.length === res.path.length)
-          hasIndex = path.at(-1) !== '*' || sub.path.at(-1) === '*';
+          hasIndex = !newPath.endsWith('*') || sub.path.endsWith('*');
 
         yield sub;
       }
@@ -51,84 +56,9 @@ function* getRoutes(children: FreactNode[], parent?: RouteNode): Generator<Route
   }
 }
 
-enum SegmentType {
-  EXACT,
-  PARAM,
-  WILD
-}
-
-function findMatch(routes: FreactNode, path: string[]) {
+function findMatch(routes: FreactNode) {
   for (const route of getRoutes([routes])) {
-    let routePtr = 0, pathPtr = 0, optionals = 0;
-
-    while (true) {
-      if (routePtr >= route.path.length || (pathPtr >= path.length && optionals < 1)) {
-        let isMatching = routePtr === route.path.length && pathPtr === path.length;
-
-        if (!isMatching && routePtr < route.path.length) {
-          let hasExact = false;
-          for (let i = routePtr; i < route.path.length; i++) {
-            if (!route.path[i].endsWith('?') && route.path[i] !== '*') {
-              hasExact = true;
-              break;
-            }
-          }
-
-          isMatching = !hasExact;
-        }
-
-        if (isMatching) {
-          console.log(route.path.join('/'));
-        }
-
-        break;
-      }
-
-      const isOptional = route.path[routePtr].endsWith('?');
-      const currRoute = isOptional
-        ? route.path[routePtr].slice(0, route.path[routePtr].length - 1)
-        : route.path[routePtr];
-
-      let hasFound = false;
-      for (let i = 0; i <= optionals; i++) {
-        if (pathPtr - i >= path.length || pathPtr - i < 0) continue;
-        if (currRoute === path[pathPtr - i]) {
-          isOptional ? optionals++ : optionals = 0;
-          pathPtr -= i;
-          hasFound = true;
-          routePtr++;
-          pathPtr++;
-          break;
-        } else {
-          if (isOptional) {
-            hasFound = true;
-            optionals++;
-            routePtr++;
-            break;
-          }
-        }
-      }
-
-      if (!hasFound) {
-        break;
-      }
-
-      // if (currRoute === '*') { // wild
-
-      // } else if (currRoute[0] === ':') { // param
-
-      // } else { // exact
-      //   if (currRoute === path[pathPtr]) {
-      //     isOptional && optionals++;
-      //     exactNum++;
-      //     routePtr++;
-      //     pathPtr++;
-      //   } else {
-      //     if (!isOptional) break;
-      //     routePtr++;
-      //   }
-      // }
-    }
+    console.log(route);
   }
 }
 
@@ -141,7 +71,7 @@ export const Routes: FC<{ children?: FreactNode; }> = ({ children }) => {
     ?? raise('Cannot use <Routes> outisde of <BrowserRouter>.');
 
   try {
-    findMatch(children, router.path);
+    findMatch(children);
     return <div>router placeholder</div>;
   } catch (err: any) {
     console.error(err.message);

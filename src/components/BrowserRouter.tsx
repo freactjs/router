@@ -1,8 +1,8 @@
+import { normalizePath } from "@/utils/normalizePath";
 import { FC, FreactNode, createContext, useCallback, useEffect, useState } from "@freact/core";
-import { parsePath } from "../utils/parsePath";
 
 export const RouterState = createContext<{
-  path: string[];
+  path: string;
   push: (path: string, replace?: boolean) => void;
 }>();
 
@@ -10,21 +10,21 @@ export const BrowserRouter: FC<{
   children?: FreactNode;
   basename?: string;
 }> = ({ children, basename = '/' }) => {
-  const [path, setPath] = useState(() => parsePath(location.pathname));
+  const [path, setPath] = useState(() => location.pathname);
 
   const push = useCallback((dest: string, replace?: boolean) => {
-    let newPath = parsePath(dest);
-    newPath = dest[0] === '/' ? newPath : [...path, ...newPath];
+    let newPath = normalizePath(dest);
+    newPath = dest[0] === '/' ? newPath : `${path}/${newPath}`;
 
     setPath(newPath);
     replace
-      ? history.replaceState(null, '', `/${newPath.join('/')}`)
-      : history.pushState(null, '', `/${newPath.join('/')}`);
+      ? history.replaceState(null, '', `/${newPath}`)
+      : history.pushState(null, '', `/${newPath}`);
   }, [path]);
 
   useEffect(() => {
     const onPopState = () => {
-      setPath(parsePath(location.pathname));
+      setPath(normalizePath(location.pathname));
     };
 
     window.addEventListener('popstate', onPopState);
