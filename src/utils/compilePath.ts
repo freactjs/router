@@ -1,9 +1,9 @@
 import { raise } from "./raise";
 
-export const compilePath = (path: string): [RegExp, number, [string, number][], number | null] => {
+export const compilePath = (path: string, caseSensitive: boolean = false): [RegExp, [string, number][], number] => {
   const parts = path.split('/');
   const params: [string, number][] = [];
-  let specificity = 0, isSpecific = 1, patt = '^', wildcard = null;
+  let patt = '^', wildcard = Infinity;
 
   for (let i = 0; i < parts.length; i++) {
     if (parts[i] === '*') { // wildcard
@@ -11,21 +11,20 @@ export const compilePath = (path: string): [RegExp, number, [string, number][], 
         raise(`Invalid path '/${path}'. Wildcard use is only permitted at the very end.`);
 
       patt += "(\\/[a-zA-Z0-9.\\-\\/%_~!$&'()*+,;=:@]+)?";
-      isSpecific = 0;
       wildcard = i;
     } else if (parts[i].startsWith(':')) { // param
-      isSpecific = 0;
       params.push([parts[i].endsWith('?') ? parts[i].slice(1, -1) : parts[i].slice(1), i]);
-      patt += "(\\/([a-zA-Z0-9.\\-%_~!$&'()*+,;=:@])+)";
+      patt += "(\\/[a-zA-Z0-9.\\-%_~!$&'()*+,;=:@]+)";
       if (parts[i].endsWith('?')) patt += '?';
     } else { // exact
-      patt += `(\\/${parts[i].endsWith('?') ? parts[i].slice(0, -1) : parts[i]})`; // TODO: Escape regex chars
+      let name = parts[i].endsWith('?') ? parts[i].slice(0, -1) : parts[i];
+      name = encodeURIComponent(decodeURIComponent(name));
+      name = name.replace(/[\\.*+^$?{}|()[\]]/g, "\\$&"); // Escape RegExp special chars
+      patt += `(\\/${name})`;
       if (parts[i].endsWith('?')) patt += '?';
     }
-
-    specificity += isSpecific;
   }
 
   patt += '$';
-  return [new RegExp(patt, 'i'), specificity, params, wildcard];
+  return [new RegExp(patt, caseSensitive ? '' : 'i'), params, wildcard];
 };

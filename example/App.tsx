@@ -1,46 +1,31 @@
+import { Outlet } from "@/components/Outlet";
 import { useNavigate } from "@/hooks/useNavigate";
 import { Route, Routes } from "@/index";
-import { compilePath } from "@/utils/compilePath";
-import { normalizePath } from "@/utils/normalizePath";
-import { FC, useState } from "@freact/core";
-
-const routes: [string, ReturnType<typeof compilePath>][] = [
-  '/',
-  '/test?/stuff?/test/test?/idk?',
-  '/stuff/test?'
-].map(x => [x, compilePath(normalizePath(x))]);
+import { FC } from "@freact/core";
+import { TestRoute } from "./TestRoute";
 
 export const App: FC = () => {
-  const [text, setText] = useState('');
   const navigate = useNavigate();
 
   return (
     <div>
-      <input type='text' value={text} onInput={(e: any) => setText(e.target.value)} />
-      <hr />
-      {
-        routes
-          .filter(x => x[1][0].test(`/${normalizePath(text)}`))
-          .map(x => <div>{x[0]}</div>)
-      }
+      <button onClick={() => navigate('/test/hello')}>goto</button>
+      <Routes>
+        <Route path="/" element={<div>index</div>} />
+        <Route path="/test/:slug" element={<TestRoute />}>
+          <Route path='/' element={<div>slug index</div>} />
+          <Route path='nest' element={
+            <div>
+              <div>nest</div>
+              <Outlet />
+            </div>
+          }>
+            <Route path='' element={<div>nested index</div>} />
+            <Route path='alt' element={<div>nested alt</div>} />
+          </Route>
+          <Route path='*' element={<div>fallback</div>} />
+        </Route>
+      </Routes>
     </div>
   );
-
-  // return (
-  //   <div>
-  //     <button onClick={() => navigate('/dude')}>goto</button>
-  //     <Routes>
-  //       <Route path="/" element={<div>index</div>} />
-  //       <>
-  //         <Route path="/test?/stuff?/test/test?/idk?" element={<div>test page</div>} />
-  //         <Route path='/stuff/test?' element={<div>other</div>} />
-  //         <Route path="/yo/:slug" element={<div>slug dude</div>}>
-  //           <Route path='/' element={<div>slug index boy</div>} />
-  //           <Route path='nest' element={<div>nest mate</div>} />
-  //           <Route path='*' element={<div>fallback</div>} />
-  //         </Route>
-  //       </>
-  //     </Routes>
-  //   </div>
-  // );
 };

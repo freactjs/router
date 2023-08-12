@@ -1,5 +1,5 @@
 import { normalizePath } from "@/utils/normalizePath";
-import { FC, FreactNode, createContext, useCallback, useEffect, useState } from "@freact/core";
+import { FC, FreactNode, createContext, memo, useCallback, useEffect, useState } from "@freact/core";
 
 export const RouterState = createContext<{
   path: string;
@@ -9,8 +9,8 @@ export const RouterState = createContext<{
 export const BrowserRouter: FC<{
   children?: FreactNode;
   basename?: string;
-}> = ({ children, basename = '/' }) => {
-  const [path, setPath] = useState(() => location.pathname);
+}> = memo(({ children, basename = '/' }) => {
+  const [path, setPath] = useState(() => normalizePath(location.pathname));
 
   const push = useCallback((dest: string, replace?: boolean) => {
     let newPath = normalizePath(dest);
@@ -39,4 +39,4 @@ export const BrowserRouter: FC<{
       {children}
     </RouterState.Provider>
   );
-};
+});
