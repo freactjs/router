@@ -38,7 +38,6 @@ export const useNavigate = (): NavigateFunction => {
     }
 
     let newPath = '';
-
     if (to.startsWith('/')) { // absolute routing
       const endPath = resolveTraversal(normalizePath(to))[0];
       newPath = concatPaths(router.basepath, endPath);
@@ -64,9 +63,15 @@ export const useNavigate = (): NavigateFunction => {
             }
           }
 
+          let midPaths: string[] = [];
+          while (routes.parent) {
+            midPaths.unshift(stripWild(routes.parent.active?.path ?? ''));
+            routes = routes.parent;
+          }
+
           newPath = concatPaths(
             router.basepath,
-            stripWild(routes.parent?.active?.path ?? ''), // FIXME: still breaks when multiple <Routes> nesting
+            ...midPaths,
             stripWild(curr ? curr.path : ''),
             endPath
           );
