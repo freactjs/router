@@ -10,17 +10,17 @@ export const compilePath = (path: string, caseSensitive: boolean = false): [RegE
       if (i < parts.length - 1)
         raise(`Invalid path '/${path}'. Wildcard use is only permitted at the very end.`);
 
-      patt += "(\\/[a-zA-Z0-9.\\-\\/%_~!$&'()*+,;=:@]+)?";
+      patt += "(/[a-zA-Z0-9.\\-/%_~!$&'()*+,;=:@]+)?";
       wildcard = i;
     } else if (parts[i].startsWith(':')) { // param
       params.push([parts[i].endsWith('?') ? parts[i].slice(1, -1) : parts[i].slice(1), i]);
-      patt += "(\\/[a-zA-Z0-9.\\-%_~!$&'()*+,;=:@]+)";
+      patt += "(/[a-zA-Z0-9.\\-%_~!$&'()*+,;=:@]+)";
       if (parts[i].endsWith('?')) patt += '?';
     } else { // exact
       let name = parts[i].endsWith('?') ? parts[i].slice(0, -1) : parts[i];
-      name = encodeURIComponent(decodeURIComponent(name));
+      name = encodeURI(name);
       name = name.replace(/[\\.*+^$?{}|()[\]]/g, "\\$&"); // Escape RegExp special chars
-      patt += `(\\/${name})`;
+      patt += `(/${name})`;
       if (parts[i].endsWith('?')) patt += '?';
     }
   }

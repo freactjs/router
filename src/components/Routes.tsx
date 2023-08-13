@@ -131,19 +131,23 @@ function getRoutes(routes: FreactNode, cache: RouteCache): RouteNode[] {
   return res;
 }
 
-export const RoutesData = createContext<{
+interface RoutesDataType {
   wildpath: string | null;
   params: { [K: string]: string; };
   active: RouteNode | null;
-}>();
+  parent?: RoutesDataType;
+}
+
+export const RoutesData = createContext<RoutesDataType>();
 
 export const Routes: FC<{ children?: FreactNode; }> = memo(({ children }) => {
   const cache = useRef<RouteCache>(new Map());
+  const parent = useContext(RoutesData);
   const router = useContext(RouterState)
     ?? raise('Cannot use <Routes> outisde of <BrowserRouter>.');
 
   try {
-    const path = encodeURI(decodeURI(`/${router.path}`));
+    const path = `/${parent ? parent.wildpath : router.path}`;
     let wildpath: string | null = null;
     let params: { [K: string]: string; } = {};
     let active: RouteNode | null = null;
@@ -176,7 +180,7 @@ export const Routes: FC<{ children?: FreactNode; }> = memo(({ children }) => {
     }
 
     return (
-      <RoutesData.Provider value={{ wildpath, params, active }}>
+      <RoutesData.Provider value={{ wildpath, params, active, parent }}>
         <OutletDepth.Provider value={depth}>
           {elem}
         </OutletDepth.Provider>

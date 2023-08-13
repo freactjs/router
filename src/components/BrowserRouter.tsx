@@ -1,41 +1,47 @@
 import { normalizePath } from "@/utils/normalizePath";
-import { FC, FreactNode, createContext, memo, useCallback, useEffect, useState } from "@freact/core";
+import { FC, FreactNode, StateSetter, createContext, memo, useEffect, useMemo, useState } from "@freact/core";
 
 export const RouterState = createContext<{
   path: string;
-  push: (path: string, replace?: boolean) => void;
+  basepath: string;
+  setFullPath: StateSetter<string>;
 }>();
 
 export const BrowserRouter: FC<{
   children?: FreactNode;
   basename?: string;
 }> = memo(({ children, basename = '/' }) => {
-  const [path, setPath] = useState(() => normalizePath(location.pathname));
-
-  const push = useCallback((dest: string, replace?: boolean) => {
-    let newPath = normalizePath(dest);
-    newPath = dest[0] === '/' ? newPath : `${path}/${newPath}`;
-
-    setPath(newPath);
-    replace
-      ? history.replaceState(null, '', `/${newPath}`)
-      : history.pushState(null, '', `/${newPath}`);
-  }, [path]);
+  const [fullPath, setFullPath] = useState(() => normalizePath(location.pathname));
 
   useEffect(() => {
     const onPopState = () => {
-      setPath(normalizePath(location.pathname));
+      setFullPath(normalizePath(location.pathname));
     };
 
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
+  const [basepath, basematcher]: [string, RegExp] = useMemo(() => {
+    const normalized = normalizePath(basename);
+    let reSrc = normalized.replace(/[\\.*+^$?{}|()[\]]/g, "\\$&");
+    reSrc += "(/[a-zA-Z0-9.\\-/%_~!$&'()*+,;=:@]+)?";
+    return [normalized, new RegExp(reSrc, 'i')];
+  }, [basename]);
+
+  const path = useMemo(() => {
+    const match = `/${fullPath}`.match(basematcher);
+    if (!match) return null;
+    return (match.at(1) ?? '/').slice(1);
+  }, [fullPath, basematcher]);
+
+  if (path === null) {
+    console.error(`Current path doesn't match the specified basename /${basepath}.`);
+    return <></>;
+  }
+
   return (
-    <RouterState.Provider value={{ path, push }}>
-      {/* <Routes>
-        <Route path={basename} element={children} />
-      </Routes> */}
+    <RouterState.Provider value={{ path, basepath, setFullPath }}>
       {children}
     </RouterState.Provider>
   );
