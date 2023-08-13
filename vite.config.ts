@@ -10,9 +10,21 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    rollupOptions: {
+      external: ['@freact/core'],
+      input: {
+        'freact-router': resolve(__dirname, 'src/index.ts')
+      },
+      output: {
+        globals: {
+          '@freact/core': 'Freact'
+        }
+      }
+    },
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      formats: ['es'],
+      entry: '',
+      name: 'FreactRouter',
+      formats: ['es', 'umd', 'iife'],
       fileName: (format, name) => `${name}.${format}.js`
     }
   }
