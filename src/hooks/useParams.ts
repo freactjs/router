@@ -4,7 +4,7 @@ import { useContext } from "@freact/core";
 
 function useParams<T extends { [K: string]: string; }>(): Readonly<T> {
   const data = useContext(RoutesData)
-    ?? raise('Cannot use the useParams outisde of <Routes>.');
+    ?? raise('Cannot use the useParams hook outisde of <Routes>.');
 
   return { ...data.params } as any;
 }

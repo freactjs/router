@@ -5,8 +5,9 @@ import { FC, FreactNode, createContext, memo, useContext, useRef } from "@freact
 import { RouterState } from "./BrowserRouter";
 import { Route } from "./Route";
 import { OutletDepth } from "./Outlet";
+import { isWild, stripWild } from "@/utils/stripWild";
 
-interface RouteNode {
+export interface RouteNode {
   path: string;
   el: FreactNode;
   parent?: RouteNode;
@@ -46,10 +47,7 @@ function* enumRoutes(
 
     let newPath = normalizePath(child.props.path);
     if (parent) {
-      const oldPath = parent.path.endsWith('*')
-        ? parent.path.slice(0, -2)
-        : parent.path;
-
+      const oldPath = stripWild(parent.path);
       newPath = `${oldPath}${newPath.length > 0 ? '/' : ''}${newPath}`;
     }
 
@@ -64,7 +62,7 @@ function* enumRoutes(
     if (child.props.children) {
       for (const sub of enumRoutes([child.props.children], cache, res)) {
         if (sub.path.length === newPath.length)
-          hasIndex = !newPath.endsWith('*') || sub.path.endsWith('*');
+          hasIndex = !isWild(newPath) || isWild(sub.path);
 
         yield sub;
       }
@@ -131,7 +129,7 @@ function getRoutes(routes: FreactNode, cache: RouteCache): RouteNode[] {
   return res;
 }
 
-interface RoutesDataType {
+export interface RoutesDataType {
   wildpath: string | null;
   params: { [K: string]: string; };
   active: RouteNode | null;

@@ -1,21 +1,15 @@
 import { FC, createContext, memo, useContext } from "@freact/core";
 import { RoutesData } from "./Routes";
+import { getRouteNode } from "@/utils/getRouteNode";
 
 export const OutletDepth = createContext<number>();
 
 export const Outlet: FC = memo(() => {
-  const data = useContext(RoutesData);
+  const parent = useContext(RoutesData);
   const depth = useContext(OutletDepth);
+  const curr = getRouteNode(parent, depth);
 
-  if (
-    !data?.active?.parent ||
-    typeof depth !== 'number' || depth < 0
-  ) return <></>;
-
-  let curr = data.active;
-  for (let i = 0; i < depth; i++)
-    curr = curr.parent!;
-
+  if (!curr) return <></>;
   return (
     <OutletDepth.Provider value={depth - 1}>
       {curr.el}
