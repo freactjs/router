@@ -1,11 +1,14 @@
 import { normalizePath } from "@/utils/normalizePath";
 import { FC, FreactNode, StateSetter, createContext, memo, useEffect, useMemo, useState } from "@freact/core";
 
-export const RouterState = createContext<{
+export interface RouterStateType {
   path: string;
   basepath: string;
+  fullPath: string;
   setFullPath: StateSetter<string>;
-}>();
+}
+
+export const RouterState = createContext<RouterStateType>();
 
 export const BrowserRouter: FC<{
   children?: FreactNode;
@@ -31,8 +34,7 @@ export const BrowserRouter: FC<{
 
   const path = useMemo(() => {
     const match = `/${fullPath}`.match(basematcher);
-    if (!match) return null;
-    return (match.at(1) ?? '/').slice(1);
+    return !match ? null : (match.at(1) ?? '/').slice(1);
   }, [fullPath, basematcher]);
 
   if (path === null) {
@@ -41,7 +43,7 @@ export const BrowserRouter: FC<{
   }
 
   return (
-    <RouterState.Provider value={{ path, basepath, setFullPath }}>
+    <RouterState.Provider value={{ path, basepath, fullPath, setFullPath }}>
       {children}
     </RouterState.Provider>
   );

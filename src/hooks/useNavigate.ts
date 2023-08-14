@@ -1,12 +1,8 @@
 import { RouterState } from "@/components/BrowserRouter";
 import { OutletDepth } from "@/components/Outlet";
 import { RoutesData } from "@/components/Routes";
-import { concatPaths } from "@/utils/concatPaths";
-import { getRouteNode } from "@/utils/getRouteNode";
-import { normalizePath } from "@/utils/normalizePath";
 import { raise } from "@/utils/raise";
-import { resolveTraversal } from "@/utils/resolveTraversal";
-import { stripWild } from "@/utils/stripWild";
+import { resolveNavigationPath } from "@/utils/resolveNavigationPath";
 import { useCallback, useContext } from "@freact/core";
 
 export type RelativeRoutingType = 'route' | 'path';
@@ -28,71 +24,22 @@ export const useNavigate = (): NavigateFunction => {
   const parent = useContext(RoutesData);
   const depth = useContext(OutletDepth);
 
-  const navigate: NavigateFunction = useCallback((to: string | number, opts: NavigateOpts = {
-    replace: false,
-    relative: 'route',
-    state: null
-  }) => {
+  const navigate: NavigateFunction = useCallback((to: string | number, {
+    relative = 'route',
+    replace = false,
+    state = null
+  }: NavigateOpts = {}) => {
     if (typeof to === 'number') { // delta
       return history.go(to);
     }
 
-    let newPath = '';
-    if (to.startsWith('/')) { // absolute routing
-      const endPath = resolveTraversal(normalizePath(to))[0];
-      newPath = concatPaths(router.basepath, endPath);
-    } else { // relative routing
-      const [endPath, delta] = resolveTraversal(normalizePath(to));
+    const newPath = resolveNavigationPath({
+      to, router, parent, depth, relative
+    });
 
-      if (opts.relative === 'route') { // route relative
-        if (parent && typeof depth === 'number') {
-          let curr = getRouteNode(parent, depth + 1);
-          if (!curr) raise('useNavigate unable to locate its RouteNode');
-
-          // route traversal
-          let routes = parent;
-          for (let i = 0; i < delta; i++) {
-            if (curr.parent) {
-              curr = curr.parent;
-            } else if (routes.parent) {
-              routes = routes.parent;
-              curr = routes.active!;
-            } else {
-              curr = null;
-              break;
-            }
-          }
-
-          let midPaths: string[] = [];
-          while (routes.parent) {
-            midPaths.unshift(stripWild(routes.parent.active?.path ?? ''));
-            routes = routes.parent;
-          }
-
-          newPath = concatPaths(
-            router.basepath,
-            ...midPaths,
-            stripWild(curr ? curr.path : ''),
-            endPath
-          );
-        } else {
-          newPath = concatPaths(router.basepath, endPath);
-        }
-      } else { // path relative
-        let traversed = router.path;
-        if (delta > 0 && traversed) {
-          traversed += `/${[...Array(delta)].map(() => '..').join('/')}`;
-          traversed = resolveTraversal(traversed)[0];
-        }
-
-        newPath = concatPaths(router.basepath, traversed, endPath);
-      }
-    }
-
-    newPath = encodeURI(newPath);
-    opts.replace
-      ? history.replaceState(opts.state, '', `/${newPath}`)
-      : history.pushState(opts.state, '', `/${newPath}`);
+    replace
+      ? history.replaceState(state, '', `/${newPath}`)
+      : history.pushState(state, '', `/${newPath}`);
 
     router.setFullPath(newPath);
   }, [router, parent, depth]);

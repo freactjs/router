@@ -3,7 +3,7 @@ import { createRoot } from '@freact/core';
 import { App } from './App';
 
 createRoot('#root').render(
-  <BrowserRouter basename='base'>
+  <BrowserRouter>
     <App />
   </BrowserRouter>
 );

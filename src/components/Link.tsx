@@ -1,0 +1,49 @@
+import { FC, FreactNode, memo, useContext } from "@freact/core";
+import { RouterState } from "./BrowserRouter";
+import { raise } from "@/utils/raise";
+import { RoutesData } from "./Routes";
+import { OutletDepth } from "./Outlet";
+import { resolveNavigationPath } from "@/utils/resolveNavigationPath";
+
+export const Link: FC<{
+  to: string;
+  replace?: boolean;
+  state?: any;
+  reloadDocument?: boolean;
+  relative?: "route" | "path";
+  children?: FreactNode;
+}> = memo(({
+  to,
+  replace = false,
+  state = null,
+  reloadDocument = false,
+  relative = 'route',
+  children
+}) => {
+  const router = useContext(RouterState)
+    ?? raise('Cannot use <Link> outisde of <BrowserRouter>.');
+  const parent = useContext(RoutesData);
+  const depth = useContext(OutletDepth);
+
+  const newPath = resolveNavigationPath({
+    to, router, parent, depth, relative
+  });
+
+  const onClick = (e: Event) => {
+    if (reloadDocument) return;
+    e.preventDefault();
+
+    replace
+      ? history.replaceState(state, '', `/${newPath}`)
+      : history.pushState(state, '', `/${newPath}`);
+
+    router.setFullPath(newPath);
+  };
+
+  return (
+    <a
+      href={`/${newPath}`}
+      onClick={onClick}
+    >{children}</a>
+  );
+});
