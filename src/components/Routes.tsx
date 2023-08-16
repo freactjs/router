@@ -38,13 +38,8 @@ function* enumRoutes(
       continue;
     }
 
-    if (child.type !== Route) {
-      const elName = typeof child.type === 'function'
-        ? child.type.name
-        : child.type;
-
-      raise(`<${elName}> cannot be a child of <Routes>. Only <Route> components are permitted.`);
-    }
+    if (child.type !== Route)
+      raise(`Only <Route> components are allowed inside of <Routes>.`);
 
     let newPath = normalizePath(child.props.path);
     if (parent) {
