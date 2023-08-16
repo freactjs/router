@@ -1,11 +1,30 @@
 {
-  "name": "freact-router",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@freact/router",
+  "version": "0.0.1",
+  "author": "Fry",
+  "license": "MIT",
+  "description": "TODO",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "module": "dist/freact-router.es.js",
+  "types": "dist/types/index.d.ts",
+  "main": "dist/freact-router.umd.js",
+  "unpkg": "dist/freact-router.iife.js",
+  "jsdelivr": "dist/freact-router.iife.js",
+  "exports": {
+    ".": {
+      "import": "./dist/freact-router.es.js",
+      "require": "./dist/freact-router.umd.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build && tsc --emitDeclarationOnly && rimraf -g dist/example dist/*.config.d.ts && mv dist/src dist/types",
+    "prepublishOnly": "pnpm build",
+    "release": "pnpm publish --no-git-checks --access public"
   },
   "peerDependencies": {
     "@freact/core": "0.x"
@@ -13,6 +32,7 @@
   "devDependencies": {
     "@freact/core": "0.x",
     "@types/node": "^20.5.0",
+    "rimraf": "^5.0.1",
     "typescript": "^5.1.6",
     "vite": "^4.4.9"
   }

@@ -1,11 +1,12 @@
 import { compilePath } from "@/utils/compilePath";
+import { concatPaths } from "@/utils/concatPaths";
 import { normalizePath } from "@/utils/normalizePath";
 import { raise } from "@/utils/raise";
+import { isWild, stripWild } from "@/utils/stripWild";
 import { FC, FreactNode, createContext, memo, useContext, useRef } from "@freact/core";
 import { RouterState } from "./BrowserRouter";
-import { Route } from "./Route";
 import { OutletDepth } from "./Outlet";
-import { isWild, stripWild } from "@/utils/stripWild";
+import { Route } from "./Route";
 
 export interface RouteNode {
   path: string;
@@ -48,7 +49,7 @@ function* enumRoutes(
     let newPath = normalizePath(child.props.path);
     if (parent) {
       const oldPath = stripWild(parent.path);
-      newPath = `${oldPath}${newPath.length > 0 ? '/' : ''}${newPath}`;
+      newPath = concatPaths(oldPath, newPath);
     }
 
     const res: RouteNode = {

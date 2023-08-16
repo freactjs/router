@@ -1,12 +1,12 @@
+import { RouterStateType } from "@/components/BrowserRouter";
 import { RoutesDataType } from "@/components/Routes";
+import { RelativeRoutingType } from "@/hooks/useNavigate";
 import { concatPaths } from "./concatPaths";
 import { getRouteNode } from "./getRouteNode";
 import { normalizePath } from "./normalizePath";
 import { raise } from "./raise";
 import { resolveTraversal } from "./resolveTraversal";
 import { stripWild } from "./stripWild";
-import { RouterStateType } from "@/components/BrowserRouter";
-import { RelativeRoutingType } from "@/hooks/useNavigate";
 
 export function resolveNavigationPath({
   to, router, parent, depth, relative

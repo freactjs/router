@@ -1,9 +1,9 @@
+import { raise } from "@/utils/raise";
+import { resolveNavigationPath } from "@/utils/resolveNavigationPath";
 import { FC, FreactNode, memo, useContext } from "@freact/core";
 import { RouterState } from "./BrowserRouter";
-import { raise } from "@/utils/raise";
-import { RoutesData } from "./Routes";
 import { OutletDepth } from "./Outlet";
-import { resolveNavigationPath } from "@/utils/resolveNavigationPath";
+import { RoutesData } from "./Routes";
 
 interface StyleType {
   [K: string]: string;

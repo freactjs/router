@@ -1,6 +1,6 @@
+import { getRouteNode } from "@/utils/getRouteNode";
 import { FC, createContext, memo, useContext } from "@freact/core";
 import { RoutesData } from "./Routes";
-import { getRouteNode } from "@/utils/getRouteNode";
 
 export const OutletDepth = createContext<number>();
 
