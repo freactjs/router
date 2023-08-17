@@ -1,10 +1,5 @@
-import { BrowserRouter } from '@/index';
 import { createRoot } from '@freact/core';
 import { App } from './App';
-import './style.css';
+import './main.css';
 
-createRoot('#root').render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
-);
+createRoot('#root').render(<App />);
