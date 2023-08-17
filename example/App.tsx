@@ -23,9 +23,10 @@ export function Layout() {
     <div>
       <h1>Outlet Modal Example</h1>
       <p>
-        This is a modal example using createBrowserRouter that drives modal
-        displays through URL segments. The modal is a child route of its parent
-        and renders in the Outlet.
+        This is a modal example that drives modal displays through URL segments.
+        The modal is a child route of its parent and renders in the Outlet.
+        This example is taken from <a href='https://reactrouter.com/en/main'>React Router</a> to
+        test for feature parity.
       </p>
       <div>
         <nav>

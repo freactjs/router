@@ -6,8 +6,8 @@ settings:
 
 devDependencies:
   '@freact/core':
-    specifier: ~0.0.15
-    version: 0.0.15
+    specifier: ~0.0.16
+    version: 0.0.16
   '@types/node':
     specifier: ^20.5.0
     version: 20.5.0
@@ -221,8 +221,8 @@ packages:
     dev: true
     optional: true
 
-  /@freact/core@0.0.15:
-    resolution: {integrity: sha512-Y0cW1zZ1MAtZyWy/OXsKmtOazeiA2LPmZqMNYYqMs1RolE794XPThd/xEV0LIzq2D2ASwX+hshnT4Dz9Ui7sMw==}
+  /@freact/core@0.0.16:
+    resolution: {integrity: sha512-ooaHeila6XJMzrdWQ835y6G8lJsAqE0jd3dxQxhh8YDa85oxDfJZFzkA8yXBTjR5/XWgw5yf4DZFYcGO682qHA==}
     dev: true
 
   /@isaacs/cliui@8.0.2:
