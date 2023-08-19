@@ -25,8 +25,7 @@ export function Layout() {
       <p>
         This is a modal example that drives modal displays through URL segments.
         The modal is a child route of its parent and renders in the Outlet.
-        This example is taken from <a href='https://reactrouter.com/en/main'>React Router</a> to
-        test for feature parity.
+        This example is taken from <a href='https://github.com/remix-run/react-router/tree/main/examples/modal-route-with-outlet'>React Router</a> to test for feature parity.
       </p>
       <div>
         <nav>

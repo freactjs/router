@@ -62,7 +62,7 @@ export function resolveNavigationPath({
     } else { // path relative
       let traversed = router.path;
       if (delta > 0 && traversed) {
-        traversed += `/${[...Array(delta)].map(() => '..').join('/')}`;
+        traversed += '/..'.repeat(delta);
         traversed = resolveTraversal(traversed)[0];
       }
 
