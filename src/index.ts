@@ -7,6 +7,3 @@ export { Route } from './components/Route';
 export { Routes } from './components/Routes';
 export { useNavigate } from './hooks/useNavigate';
 export { useParams } from './hooks/useParams';
-
-// TODOs:
-// NavLink
