@@ -1,9 +1,9 @@
 {
   "name": "@freact/router",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Fry",
   "license": "MIT",
-  "description": "TODO",
+  "description": "Client-side router for @freact/core",
   "type": "module",
   "files": [
     "dist"
